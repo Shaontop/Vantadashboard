@@ -9,6 +9,9 @@ from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
 from database import Database
+import threading
+import uvicorn
+from api import app as api_app, set_bot
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN", "").strip()
@@ -545,4 +548,21 @@ async def on_command_error(ctx, error):
     log.error("Prefix command error: %r", error)
     await ctx.reply("Something went wrong. Check the bot logs.")
 
-bot.run(TOKEN)
+set_bot(bot)
+
+def run_api():
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(
+        api_app,
+        host="0.0.0.0",
+        port=port,
+        log_level="info",
+    )
+
+if __name__ == "__main__":
+    api_thread = threading.Thread(
+        target=run_api,
+        daemon=True,
+    )
+    api_thread.start()
+    bot.run(TOKEN)
