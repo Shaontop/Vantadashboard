@@ -146,6 +146,41 @@ async function checkDiscordLogin(){
     detail.textContent = 'Log in with Discord, then check your session.';
   }
 }
+  
+async function loadDiscordGuilds() {
+  const serverName = document.querySelector('.server-name');
+  const serverSub = document.querySelector('.server-sub');
+
+  if (!serverName || !serverSub) return;
+
+  try {
+    const response = await fetch(
+      'https://vantahq-api.onrender.com/api/guilds',
+      { credentials: 'include' }
+    );
+
+    if (!response.ok) {
+      throw new Error('Could not load servers');
+    }
+
+    const data = await response.json();
+
+    if (!data.guilds || data.guilds.length === 0) {
+      serverName.textContent = 'No available servers';
+      serverSub.textContent = 'Check bot access and Discord permissions';
+      return;
+    }
+
+    serverName.textContent = data.guilds[0].name;
+    serverSub.textContent = data.guilds.length === 1
+      ? '1 connected server'
+      : `${data.guilds.length} connected servers`;
+  } catch (error) {
+    serverName.textContent = 'Server list unavailable';
+    serverSub.textContent = 'Check your Discord login';
+  }
+}
+
 
 async function logoutDiscord(){
   try {
@@ -177,6 +212,8 @@ async function logoutDiscord(){
 
 render();
 updateBotStatus();
+loadDiscordGuilds();
+checkDiscordLogin();
 setInterval(updateBotStatus, 30000);
 </script>
 </body>
