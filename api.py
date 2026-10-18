@@ -10,8 +10,10 @@ app = FastAPI(title="VantaHQ API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://shaontop.github.io"],
-    allow_methods=["GET", "OPTIONS"],
+    allow_origins=[
+        "https://shaontop.github.io",
+    ],
+    allow_methods=["GET", "PUT", "OPTIONS"],
     allow_headers=["Content-Type", "X-VantaHQ-Key"],
 )
 
@@ -50,6 +52,7 @@ def require_guild(guild_id: int):
         raise HTTPException(status_code=503, detail="Bot is not ready.")
 
     guild = bot_client.get_guild(guild_id)
+
     if guild is None:
         raise HTTPException(
             status_code=404,
@@ -62,6 +65,7 @@ def require_guild(guild_id: int):
 @app.get("/api/status")
 async def status():
     connected = bot_client is not None and bot_client.is_ready()
+
     return {
         "status": "API online",
         "bot": "VantaHQ",
@@ -85,7 +89,10 @@ async def get_guilds(
 
     return {
         "guilds": [
-            {"id": str(guild.id), "name": guild.name}
+            {
+                "id": str(guild.id),
+                "name": guild.name,
+            }
             for guild in bot_client.guilds
         ]
     }
@@ -109,7 +116,8 @@ async def get_settings(
     return {
         "guild_id": str(guild_id),
         "settings": {
-            key: value for key, value in rows
+            key: value
+            for key, value in rows
             if key in ALLOWED_SETTINGS
         },
     }
@@ -133,10 +141,12 @@ async def save_settings(
         )
 
     unknown = set(settings) - ALLOWED_SETTINGS
+
     if unknown:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported settings: " + ", ".join(sorted(unknown)),
+            detail="Unsupported settings: "
+            + ", ".join(sorted(unknown)),
         )
 
     async with aiosqlite.connect(DATABASE_PATH) as db:
@@ -157,8 +167,8 @@ async def save_settings(
 
             await db.execute(
                 """
-                INSERT INTO settings(guild_id, key, value)
-                VALUES(?, ?, ?)
+                INSERT INTO settings (guild_id, key, value)
+                VALUES (?, ?, ?)
                 ON CONFLICT(guild_id, key)
                 DO UPDATE SET value = excluded.value
                 """,
