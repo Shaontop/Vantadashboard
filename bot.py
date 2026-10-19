@@ -3,6 +3,7 @@ import logging
 import asyncio
 from datetime import timedelta
 from typing import Optional
+from voice_music import VoiceMusic
 
 import discord
 from discord import app_commands
@@ -481,6 +482,7 @@ class VantaBot(commands.Bot):
         await self.add_cog(CoreCommands(self))
         await self.add_cog(Tickets(self))
         await self.add_cog(Utility(self))
+        await self.add_cog(VoiceMusic(self))
         self.add_view(TicketPanel(self))
         self.add_view(TicketControls(self))
         if GUILD_ID.isdigit():
