@@ -16,6 +16,7 @@ PANEL_CHANNEL_ID = 1561548409838641263
 
 FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
 
+
 YDL_OPTIONS = {
     "format": "bestaudio/best",
     "quiet": True,
@@ -23,7 +24,13 @@ YDL_OPTIONS = {
     "noplaylist": True,
     "default_search": "ytsearch1",
     "extract_flat": False,
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["tv", "web_safari"],
+        },
+    },
 }
+
 
 FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
