@@ -50,7 +50,7 @@ async def search_song(query):
     """Search YouTube and return the playable audio information."""
     def extract():
         with yt_dlp.YoutubeDL(YDL_OPTIONS) as ydl:
-            result = ydl.extract_info(f"ytsearch1:{query}", download=False)
+            result = ydl.extract_info(f"scsearch1:{query}", download=False)
             entries = result.get("entries") or []
             if not entries:
                 raise ValueError("No songs found.")
@@ -348,8 +348,7 @@ class VoiceMusic(commands.Cog):
 
         # Refresh the stream URL before playback because YouTube URLs expire.
         try:
-            fresh_song = await search_song(song["webpage_url"])
-            audio_url = fresh_song["audio_url"]
+            audio_url = song["audio_url"]
             if not audio_url:
                 raise ValueError("No audio stream available.")
 
